@@ -8,6 +8,7 @@ import json
 from pdf2image import convert_from_bytes
 from openai import OpenAI
 from dotenv import load_dotenv
+import httpx
 
 load_dotenv()
 
@@ -17,7 +18,14 @@ load_dotenv()
 for p in ["HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"]:
     os.environ.pop(p, None)
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-client = OpenAI(api_key=OPENAI_API_KEY)
+
+
+transport = httpx.HTTPTransport(proxy=None)
+
+client = OpenAI(
+    api_key=OPENAI_API_KEY,
+    http_client=httpx.Client(transport=transport)
+)
 MODEL = "gpt-4.1"
 
 st.title("Invoice To Excel Extractor")
