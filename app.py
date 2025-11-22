@@ -27,7 +27,7 @@ st.title("Invoice to Excel Extractor")
 uploaded = st.file_uploader("Upload invoice (PDF or Image)", type=["png","jpg","jpeg","pdf"])
 
 def call_llm_with_image(pil_img):
-    """Send a single PIL image to OpenAI and get parsed invoice items."""
+    """Send a single PIL image to OpenAI via file upload and get parsed invoice items."""
     system_prompt = """
     You are an invoice parser. 
     Extract ONLY line items. Return STRICT JSON array.
@@ -49,12 +49,19 @@ def call_llm_with_image(pil_img):
     pil_img.save(buf, format="PNG")
     buf.seek(0)
 
-    # Send to OpenAI
+    # Step 1: Upload image to OpenAI
+    uploaded_file = client.files.create(
+        file=buf,
+        purpose="responses"
+    )
+    file_id = uploaded_file.id
+
+    # Step 2: Send file reference to LLM
     resp = client.responses.create(
         model=MODEL,
         input=[
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": [{"type": "file", "file": buf}]}
+            {"role": "user", "content": [{"type": "file", "file": file_id}]}
         ],
         max_output_tokens=1500,
         temperature=0
@@ -84,7 +91,7 @@ if uploaded:
             try:
                 items = json.loads(extracted)
                 all_items.extend(items)
-            except:
+            except json.JSONDecodeError:
                 st.error(f"LLM returned invalid JSON on page {i+1}:")
                 st.code(extracted)
 
