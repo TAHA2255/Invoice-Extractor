@@ -43,6 +43,39 @@ def pil_to_data_url(pil_img):
     return f"data:image/png;base64,{base64_str}"
 
 
+# def call_llm_with_image(data_url):
+#     system_prompt = """
+#     You are an invoice parser. 
+#     Extract ONLY line items. Return STRICT JSON array.
+
+#     Format:
+#     [
+#       {
+#         "Quantity": "...",
+#         "Unit": "...",
+#         "Product": "...",
+#         "Unit Price": "...",
+#         "Line Total": "..."
+#       }
+#     ]
+#     """
+
+#     resp = client.responses.create(
+#         model=MODEL,
+#         input=[
+#             {"role": "system", "content": system_prompt},
+#             {"role": "user",
+#              "content": [
+#                  {"type": "input_image", "image_url": data_url}
+#              ]
+#             },
+#         ],
+#         max_output_tokens=1500,
+#         temperature=0
+#     )
+
+#     return resp.output_text
+
 def call_llm_with_image(data_url):
     system_prompt = """
     You are an invoice parser. 
@@ -60,21 +93,25 @@ def call_llm_with_image(data_url):
     ]
     """
 
-    resp = client.responses.create(
+    resp = client.chat.completions.create(
         model=MODEL,
-        input=[
+        messages=[
             {"role": "system", "content": system_prompt},
-            {"role": "user",
-             "content": [
-                 {"type": "input_image", "image_url": data_url}
-             ]
-            },
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "input_image",
+                        "image_url": data_url
+                    }
+                ]
+            }
         ],
-        max_output_tokens=1500,
+        max_tokens=1500,
         temperature=0
     )
 
-    return resp.output_text
+    return resp.choices[0].message["content"]
 
 
 if uploaded:
