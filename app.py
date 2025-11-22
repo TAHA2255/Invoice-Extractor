@@ -52,7 +52,7 @@ def call_llm_with_image(pil_img):
     # Step 1: Upload image to OpenAI
     uploaded_file = client.files.create(
         file=buf,
-        purpose="responses"
+        purpose="vision"
     )
     file_id = uploaded_file.id
 
