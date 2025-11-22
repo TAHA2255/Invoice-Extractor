@@ -61,7 +61,7 @@ def call_llm_with_image(pil_img):
         model=MODEL,
         input=[
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": [{"type": "file", "file": file_id}]}
+            {"role": "user", "content": [{"type": "input_file", "file": file_id}]}
         ],
         max_output_tokens=1500,
         temperature=0
