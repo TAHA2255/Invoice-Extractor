@@ -12,11 +12,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ---- CONFIG ----
+
+# Disable Render proxy env vars
+for p in ["HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"]:
+    os.environ.pop(p, None)
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_API_KEY)
 MODEL = "gpt-4.1"
 
-st.title("Invoice → Excel Extractor (PDF + Images)")
+st.title("Invoice To Excel Extractor")
 
 
 uploaded = st.file_uploader("Upload invoice (PDF or Image)", type=["png","jpg","jpeg","pdf"])
